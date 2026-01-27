@@ -39,6 +39,7 @@ endif()
 
 target_include_directories(ps2_runtime PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/output
 )
 
 target_link_libraries(ps2_runtime PRIVATE raylib)

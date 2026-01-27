@@ -373,7 +373,7 @@ uint64_t PS2Memory::read64(uint32_t address)
     return (uint64_t)read32(address) | ((uint64_t)read32(address + 4) << 32);
 }
 
-__m128i PS2Memory::read128(uint32_t address)
+simd128i_t PS2Memory::read128(uint32_t address)
 {
     if (address & 15)
     {
@@ -385,16 +385,16 @@ __m128i PS2Memory::read128(uint32_t address)
 
     if (scratch)
     {
-        return _mm_loadu_si128(reinterpret_cast<__m128i *>(&m_scratchpad[physAddr]));
+        return simd::load_128i(&m_scratchpad[physAddr]);
     }
     if (physAddr < PS2_RAM_SIZE)
     {
-        return _mm_loadu_si128(reinterpret_cast<__m128i *>(&m_rdram[physAddr]));
+        return simd::load_128i(&m_rdram[physAddr]);
     }
 
     // 128-bit reads are primarily for quad-word loads in the EE, which are only valid for RAM areas
     // Return zeroes for unsupported areas
-    return _mm_setzero_si128();
+    return simd::setzero_128i();
 }
 
 void PS2Memory::write8(uint32_t address, uint8_t value)
@@ -541,7 +541,7 @@ void PS2Memory::write64(uint32_t address, uint64_t value)
     }
 }
 
-void PS2Memory::write128(uint32_t address, __m128i value)
+void PS2Memory::write128(uint32_t address, simd128i_t value)
 {
     if (address & 15)
     {
@@ -553,20 +553,20 @@ void PS2Memory::write128(uint32_t address, __m128i value)
 
     if (scratch)
     {
-        _mm_storeu_si128(reinterpret_cast<__m128i *>(&m_scratchpad[physAddr]), value);
+        simd::store_128i(&m_scratchpad[physAddr], value);
     }
     else if (physAddr < PS2_RAM_SIZE)
     {
-        _mm_storeu_si128(reinterpret_cast<__m128i *>(&m_rdram[physAddr]), value);
+        simd::store_128i(&m_rdram[physAddr], value);
     }
     else if (physAddr < PS2_GS_VRAM_SIZE)
     {
-        _mm_storeu_si128(reinterpret_cast<__m128i *>(&m_gsVRAM[physAddr]), value);
+        simd::store_128i(&m_gsVRAM[physAddr], value);
     }
     else
     {
-        uint64_t lo = _mm_extract_epi64(value, 0);
-        uint64_t hi = _mm_extract_epi64(value, 1);
+        uint64_t lo = simd::extract_epi64(value, 0);
+        uint64_t hi = simd::extract_epi64(value, 1);
 
         write64(address, lo);
         write64(address + 8, hi);

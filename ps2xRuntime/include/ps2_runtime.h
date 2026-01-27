@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <string>
 #include <functional>
-#include <immintrin.h> // For SSE/AVX instructions
+#include "ps2_simd.h" // Cross-platform SIMD abstraction
 #include <atomic>
 #include <filesystem>
 #include <iostream>
@@ -35,7 +35,7 @@ constexpr uint32_t PS2_VU1_DATA_BASE = 0x1100C000;
 constexpr uint32_t PS2_GS_BASE = 0x12000000;
 constexpr uint32_t PS2_GS_PRIV_REG_BASE = 0x12000000; // GS Privileged Registers
 constexpr uint32_t PS2_GS_PRIV_REG_SIZE = 0x2000;
-constexpr size_t   PS2_GS_VRAM_SIZE = 4 * 1024 * 1024; // 4MB GS VRAM
+constexpr size_t PS2_GS_VRAM_SIZE = 4 * 1024 * 1024; // 4MB GS VRAM
 
 #define PS2_FIO_O_RDONLY 0x0001
 #define PS2_FIO_O_WRONLY 0x0002
@@ -61,7 +61,7 @@ enum PS2Exception
 struct alignas(16) R5900Context
 {
     // General Purpose Registers (128-bit)
-    __m128i r[32]; // Main registers
+    simd128i_t r[32]; // Main registers
 
     // Control registers
     uint32_t pc;         // Program counter
@@ -71,13 +71,13 @@ struct alignas(16) R5900Context
     uint32_t sa;         // Shift amount register
 
     // VU0 registers (when used in macro mode)
-    __m128 vu0_vf[32];        // VU0 vector float registers
+    simd128f_t vu0_vf[32];    // VU0 vector float registers
     uint16_t vi[16];          // VU0 vector integer registers
     float vu0_q;              // VU0 Q register (quotient)
     float vu0_p;              // VU0 P register (EFU result)
     float vu0_i;              // VU0 I register (integer value)
-    __m128 vu0_r;             // VU0 R register
-    __m128 vu0_acc;           // VU0 ACC accumulator register
+    simd128f_t vu0_r;         // VU0 R register
+    simd128f_t vu0_acc;       // VU0 ACC accumulator register
     uint16_t vu0_status;      // VU0 status register
     uint32_t vu0_mac_flags;   // VU0 MAC flags
     uint32_t vu0_clip_flags;  // VU0 clipping flags
@@ -99,7 +99,7 @@ struct alignas(16) R5900Context
     uint32_t vu0_itop;
     uint32_t vu0_info;
     uint32_t vu0_xitop; // VU0 XITOP - input ITOP for VIF/VU sync
-    uint32_t vu0_pc; 
+    uint32_t vu0_pc;
 
     float vu0_cf[4]; // VU0 FMAC control floating-point registers
 
@@ -138,9 +138,9 @@ struct alignas(16) R5900Context
     {
         for (int i = 0; i < 32; i++)
         {
-            r[i] = _mm_setzero_si128();
+            r[i] = simd::setzero_128i();
             f[i] = 0.0f;
-            vu0_vf[i] = _mm_setzero_ps();
+            vu0_vf[i] = simd::setzero_ps();
         }
 
         for (int i = 0; i < 4; i++)
@@ -162,8 +162,8 @@ struct alignas(16) R5900Context
         vu0_q = 1.0f; // Q register usually initialized to 1.0
         vu0_p = 0.0f;
         vu0_i = 0.0f;
-        vu0_r = _mm_setzero_ps();
-        vu0_acc = _mm_setzero_ps();
+        vu0_r = simd::setzero_ps();
+        vu0_acc = simd::setzero_ps();
         vu0_status = 0;
         vu0_mac_flags = 0;
         vu0_clip_flags = 0;
@@ -183,7 +183,6 @@ struct alignas(16) R5900Context
         vu0_vpu_stat4 = 0;
         vu0_itop = 0;
         vu0_info = 0;
-
 
         // Reset COP0 registers
         cop0_index = 0;
@@ -248,19 +247,19 @@ inline uint32_t getRegU32(const R5900Context *ctx, int reg)
 
 inline void setReturnU32(R5900Context *ctx, uint32_t value)
 {
-    ctx->r[2] = _mm_set_epi32(0, 0, 0, value); // $v0
+    ctx->r[2] = simd::set_epi32(0, 0, 0, value); // $v0
 }
 
 inline void setReturnS32(R5900Context *ctx, int32_t value)
 {
-    ctx->r[2] = _mm_set_epi32(0, 0, 0, value); // $v0 Sign extension handled by cast? TODO Check MIPS ABI.
+    ctx->r[2] = simd::set_epi32(0, 0, 0, value); // $v0 Sign extension handled by cast? TODO Check MIPS ABI.
 }
 
 inline void setReturnU64(R5900Context *ctx, uint64_t value)
 {
     // 64-bit returns use $v0/$v1 (r2/r3)
-    ctx->r[2] = _mm_set_epi32(0, 0, 0, static_cast<uint32_t>(value));
-    ctx->r[3] = _mm_set_epi32(0, 0, 0, static_cast<uint32_t>(value >> 32));
+    ctx->r[2] = simd::set_epi32(0, 0, 0, static_cast<uint32_t>(value));
+    ctx->r[3] = simd::set_epi32(0, 0, 0, static_cast<uint32_t>(value >> 32));
 }
 
 inline uint8_t *getMemPtr(uint8_t *rdram, uint32_t addr)
@@ -363,13 +362,13 @@ public:
     uint16_t read16(uint32_t address);
     uint32_t read32(uint32_t address);
     uint64_t read64(uint32_t address);
-    __m128i read128(uint32_t address);
+    simd128i_t read128(uint32_t address);
 
     void write8(uint32_t address, uint8_t value);
     void write16(uint32_t address, uint16_t value);
     void write32(uint32_t address, uint32_t value);
     void write64(uint32_t address, uint64_t value);
-    void write128(uint32_t address, __m128i value);
+    void write128(uint32_t address, simd128i_t value);
 
     // TLB handling
     uint32_t translateAddress(uint32_t virtualAddress);

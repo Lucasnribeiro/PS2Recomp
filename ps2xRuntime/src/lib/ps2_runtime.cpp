@@ -171,7 +171,7 @@ PS2Runtime::PS2Runtime()
     std::memset(&m_cpuContext, 0, sizeof(m_cpuContext));
 
     // R0 is always zero in MIPS
-    m_cpuContext.r[0] = _mm_set1_epi32(0);
+    m_cpuContext.r[0] = simd::setzero_128i();
 
     // Stack pointer (SP) and global pointer (GP) will be set by the loaded ELF
 
@@ -411,9 +411,9 @@ void PS2Runtime::run()
 {
     RecompiledFunction entryPoint = lookupFunction(m_cpuContext.pc);
 
-    m_cpuContext.r[4] = _mm_set1_epi32(0);           // A0 = 0 (argc)
-    m_cpuContext.r[5] = _mm_set1_epi32(0);           // A1 = 0 (argv)
-    m_cpuContext.r[29] = _mm_set1_epi32(0x02000000); // SP = top of RAM
+    m_cpuContext.r[4] = simd::setzero_128i();          // A0 = 0 (argc)
+    m_cpuContext.r[5] = simd::setzero_128i();          // A1 = 0 (argv)
+    m_cpuContext.r[29] = simd::set1_epi32(0x02000000); // SP = top of RAM
 
     std::cout << "Starting execution at address 0x" << std::hex << m_cpuContext.pc << std::dec << std::endl;
 
@@ -424,6 +424,78 @@ void PS2Runtime::run()
 
     g_activeThreads.store(1, std::memory_order_relaxed);
 
+<<<<<<< HEAD
+=======
+    // for now if the scheduler sema hasn't been created yet, force InitThread to set it up.
+    if (hasFunction(0x10c9f8))
+    {
+        uint32_t *sched = reinterpret_cast<uint32_t *>(m_memory.getRDRAM() + (0x363a10 & PS2_RAM_MASK));
+        if (!sched || sched[0] == 0)
+        {
+            RecompiledFunction initThread = lookupFunction(0x10c9f8);
+            R5900Context initCtx{};
+            std::memset(&initCtx, 0, sizeof(initCtx));
+            initCtx.r[0] = simd::setzero_128i();
+            initCtx.r[29] = simd::set1_epi32(0x02000000);
+            initCtx.r[28] = simd::set1_epi32(0x36a7f0);
+            initCtx.pc = 0x10c9f8;
+            std::cout << "[autorun] running InitThread pc=0x10c9f8" << std::endl;
+            initThread(m_memory.getRDRAM(), &initCtx, this);
+        }
+    }
+
+    // Fallback: if the game's main entry (ps2_main at 0x12b0a0) is registered, start it on a separate host thread.
+    // The normal bootstrap thread seems to stall before spawning it, so we kick it off manually.
+    if (hasFunction(0x12b0a0))
+    {
+        RecompiledFunction ps2Main = lookupFunction(0x12b0a0);
+        g_activeThreads.fetch_add(1, std::memory_order_relaxed);
+        std::thread([=]() mutable
+                    {
+            R5900Context localCtx{};
+            std::memset(&localCtx, 0, sizeof(localCtx));
+            // Set baseline registers similar to the primary thread.
+            localCtx.r[0] = simd::setzero_128i();
+            localCtx.r[29] = simd::set1_epi32(0x02000000); // SP top of RAM
+            localCtx.r[28] = simd::set1_epi32(0x36a7f0);   // GP from ELF bootstrap
+            localCtx.pc = 0x12b0a0;
+
+            std::cout << "[autorun] starting ps2_main fallback pc=0x12b0a0 sp=0x02000000 gp=0x36a7f0" << std::endl;
+            try
+            {
+                ps2Main(m_memory.getRDRAM(), &localCtx, this);
+                std::cout << "[autorun] ps2_main returned pc=0x" << std::hex << localCtx.pc
+                          << " ra=0x" << localCtx.r[31].m128i_u32[0] << std::dec << std::endl;
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << "[autorun] ps2_main exception: " << e.what() << std::endl;
+            }
+            g_activeThreads.fetch_sub(1, std::memory_order_relaxed); })
+            .detach();
+    }
+    else
+    {
+        std::cout << "[autorun] ps2_main not registered; skipping fallback launch" << std::endl;
+    }
+
+    // Dump a small sample
+    {
+        uint32_t base = DEFAULT_FB_ADDR & 0x1FFFFFFF;
+        uint8_t *ptr = m_memory.getRDRAM() + base;
+        uint32_t sum = 0;
+        for (int i = 0; i < 32; ++i)
+            sum += ptr[i];
+        std::cout << "[FB] addr=0x" << std::hex << DEFAULT_FB_ADDR
+                  << " first32 sum=0x" << sum << " bytes:";
+        for (int i = 0; i < 16; ++i)
+        {
+            std::cout << " " << (int)ptr[i];
+        }
+        std::cout << std::dec << std::endl;
+    }
+
+>>>>>>> 712f822 (feat: apple sillicon port)
     std::thread gameThread([&, entryPoint]()
                            {
         try
