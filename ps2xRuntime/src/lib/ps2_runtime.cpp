@@ -428,7 +428,11 @@ void PS2Runtime::run()
 <<<<<<< HEAD
 =======
 =======
+<<<<<<< HEAD
 >>>>>>> 6b89943 (refactor: remove re code veronica hacks)
+=======
+>>>>>>> bcf5076 (feat: apple sillicon port)
+>>>>>>> 8e5b42f (feat: apple sillicon port)
     // for now if the scheduler sema hasn't been created yet, force InitThread to set it up.
     if (hasFunction(0x10c9f8))
     {
@@ -499,11 +503,19 @@ void PS2Runtime::run()
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 712f822 (feat: apple sillicon port)
 =======
 =======
 >>>>>>> 7b3fee9 (refactor: remove re code veronica hacks)
 >>>>>>> 6b89943 (refactor: remove re code veronica hacks)
+=======
+=======
+>>>>>>> 7b3fee9 (refactor: remove re code veronica hacks)
+=======
+>>>>>>> 712f822 (feat: apple sillicon port)
+>>>>>>> bcf5076 (feat: apple sillicon port)
+>>>>>>> 8e5b42f (feat: apple sillicon port)
     std::thread gameThread([&, entryPoint]()
                            {
         try
