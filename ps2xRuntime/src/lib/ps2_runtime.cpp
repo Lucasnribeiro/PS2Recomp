@@ -425,7 +425,10 @@ void PS2Runtime::run()
     g_activeThreads.store(1, std::memory_order_relaxed);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 6b89943 (refactor: remove re code veronica hacks)
     // for now if the scheduler sema hasn't been created yet, force InitThread to set it up.
     if (hasFunction(0x10c9f8))
     {
@@ -495,7 +498,12 @@ void PS2Runtime::run()
         std::cout << std::dec << std::endl;
     }
 
+<<<<<<< HEAD
 >>>>>>> 712f822 (feat: apple sillicon port)
+=======
+=======
+>>>>>>> 7b3fee9 (refactor: remove re code veronica hacks)
+>>>>>>> 6b89943 (refactor: remove re code veronica hacks)
     std::thread gameThread([&, entryPoint]()
                            {
         try
