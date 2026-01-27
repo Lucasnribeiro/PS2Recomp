@@ -44,6 +44,7 @@ namespace ps2recomp
 
     std::string CodeGenerator::getFunctionName(uint32_t address)
     {
+        // Prefer renamed function name if present
         auto it = m_renamedFunctions.find(address);
         if (it != m_renamedFunctions.end())
         {
@@ -53,7 +54,8 @@ namespace ps2recomp
         Symbol *sym = findSymbolByAddress(address);
         if (sym && sym->isFunction)
         {
-            return sym->name;
+            // Always sanitize symbol names for C++
+            return sanitizeFunctionName(sym->name);
         }
 
         return "";
@@ -73,7 +75,7 @@ namespace ps2recomp
         return kKeywords.find(name) != kKeywords.end();
     }
 
-    static std::string sanitizeFunctionName(const std::string &name)
+    std::string CodeGenerator::sanitizeFunctionName(const std::string &name)
     {
         // ugly but will do for now
         if (name == "main")
@@ -119,14 +121,28 @@ namespace ps2recomp
                 ss << "    " << delaySlotCode << "\n";
             }
             uint32_t target = (branchInst.address & 0xF0000000) | (branchInst.target << 2);
-            std::string funcName = getFunctionName(target);
-            if (!funcName.empty())
+            // Use getGeneratedFunctionName to ensure renaming/sanitization
+            // Always use sanitized/renamed name for direct calls
+            std::string funcName;
+            Symbol *sym = findSymbolByAddress(target);
+            if (sym && sym->isFunction)
             {
-                ss << "    " << funcName << "(rdram, ctx, runtime);\n";
-                if (branchInst.opcode == OPCODE_J)
+                if (m_renamedFunctions.count(target))
                 {
-                    ss << "    return;\n";
+                    funcName = m_renamedFunctions.at(target);
                 }
+                else if (isReservedCxxIdentifier(sym->name) || isReservedCxxKeyword(sym->name))
+                {
+                    funcName = CodeGenerator::sanitizeFunctionName(sym->name);
+                }
+                else
+                {
+                    funcName = sym->name;
+                }
+            }
+            if (!funcName.empty() && sym && sym->isFunction)
+            {
+                ss << "    " << funcName << "(rdram, ctx, runtime); return;\n";
             }
             else
             {

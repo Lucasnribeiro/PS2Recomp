@@ -250,7 +250,7 @@ PS2Runtime::PS2Runtime()
     std::memset(&m_cpuContext, 0, sizeof(m_cpuContext));
 
     // R0 is always zero in MIPS
-    m_cpuContext.r[0] = _mm_set1_epi32(0);
+    m_cpuContext.r[0] = simd::setzero_128i();
 
     // Stack pointer (SP) and global pointer (GP) will be set by the loaded ELF
 
@@ -561,9 +561,9 @@ void PS2Runtime::run()
 {
     RecompiledFunction entryPoint = lookupFunction(m_cpuContext.pc);
 
-    m_cpuContext.r[4] = _mm_set1_epi32(0);           // A0 = 0 (argc)
-    m_cpuContext.r[5] = _mm_set1_epi32(0);           // A1 = 0 (argv)
-    m_cpuContext.r[29] = _mm_set1_epi32(0x02000000); // SP = top of RAM
+    m_cpuContext.r[4] = simd::setzero_128i();          // A0 = 0 (argc)
+    m_cpuContext.r[5] = simd::setzero_128i();          // A1 = 0 (argv)
+    m_cpuContext.r[29] = simd::set1_epi32(0x02000000); // SP = top of RAM
 
     std::cout << "Starting execution at address 0x" << std::hex << m_cpuContext.pc << std::dec << std::endl;
 
@@ -624,9 +624,9 @@ void PS2Runtime::run()
             RecompiledFunction initThread = lookupFunction(0x10c9f8);
             R5900Context initCtx{};
             std::memset(&initCtx, 0, sizeof(initCtx));
-            initCtx.r[0] = _mm_set1_epi32(0);
-            initCtx.r[29] = _mm_set1_epi32(0x02000000);
-            initCtx.r[28] = _mm_set1_epi32(0x36a7f0);
+            initCtx.r[0] = simd::setzero_128i();
+            initCtx.r[29] = simd::set1_epi32(0x02000000);
+            initCtx.r[28] = simd::set1_epi32(0x36a7f0);
             initCtx.pc = 0x10c9f8;
             std::cout << "[autorun] running InitThread pc=0x10c9f8" << std::endl;
             initThread(m_memory.getRDRAM(), &initCtx, this);
@@ -644,9 +644,9 @@ void PS2Runtime::run()
             R5900Context localCtx{};
             std::memset(&localCtx, 0, sizeof(localCtx));
             // Set baseline registers similar to the primary thread.
-            localCtx.r[0] = _mm_set1_epi32(0);
-            localCtx.r[29] = _mm_set1_epi32(0x02000000); // SP top of RAM
-            localCtx.r[28] = _mm_set1_epi32(0x36a7f0);   // GP from ELF bootstrap
+            localCtx.r[0] = simd::setzero_128i();
+            localCtx.r[29] = simd::set1_epi32(0x02000000); // SP top of RAM
+            localCtx.r[28] = simd::set1_epi32(0x36a7f0);   // GP from ELF bootstrap
             localCtx.pc = 0x12b0a0;
 
             std::cout << "[autorun] starting ps2_main fallback pc=0x12b0a0 sp=0x02000000 gp=0x36a7f0" << std::endl;
