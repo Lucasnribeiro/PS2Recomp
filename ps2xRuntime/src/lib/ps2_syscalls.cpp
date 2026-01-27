@@ -14,6 +14,9 @@
 #include <condition_variable>
 #include <atomic>
 #include <filesystem>
+// POSIX functions
+#include <unistd.h>  // for chdir, rmdir, unlink
+#include <sys/stat.h> // for mkdir
 
 std::unordered_map<int, FILE *> g_fileDescriptors;
 int g_nextFd = 3; // Start after stdin, stdout, stderr
@@ -280,7 +283,7 @@ namespace ps2_syscalls
 
         // Spawn a host thread to simulate PS2 thread execution.
         g_activeThreads.fetch_add(1, std::memory_order_relaxed);
-        std::thread([=]() mutable
+        std::thread([rdram, ctx, runtime, info, tid]() mutable
                     {
             R5900Context threadCtxCopy = *ctx; // Copy current CPU state to simulate a new thread context
             R5900Context *threadCtx = &threadCtxCopy;

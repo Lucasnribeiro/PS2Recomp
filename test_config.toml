@@ -1,0 +1,17 @@
+# Simple test configuration
+[general]
+input = "test.elf"
+output = "test_output/"
+single_file_output = false
+
+# Test functions to stub
+stubs = ["printf", "malloc"]
+
+# Test functions to skip
+skip = ["exit"]
+
+# Test patches
+[patches]
+instructions = [
+  { address = "0x100000", value = "0x00000000" }
+]
