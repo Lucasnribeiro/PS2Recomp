@@ -47,6 +47,13 @@ namespace ps2recomp
         std::cout << "Extracted " << m_sections.size() << " sections" << std::endl;
         std::cout << "Extracted " << m_relocations.size() << " relocations" << std::endl;
 
+        if (m_functions.empty() && m_symbols.empty())
+        {
+            std::cerr << "Warning: No functions or symbols found in ELF. This is common for retail PS2 games. Skipping function-level analysis.\n";
+            // Optionally, you could implement basic function detection heuristics here.
+            return true;
+        }
+
         analyzeEntryPoint();
         analyzeLibraryFunctions();
         analyzeDataUsage();
@@ -192,7 +199,7 @@ namespace ps2recomp
         const std::vector<std::string> stdLibFuncs = {
             // I/O functions
             "printf", "sprintf", "snprintf", "fprintf", "vprintf", "vfprintf", "vsprintf", "vsnprintf",
-            "puts", "putchar", "getchar", "gets", "fgets", "fputs", "scanf", "fscanf", "sscanf", 
+            "puts", "putchar", "getchar", "gets", "fgets", "fputs", "scanf", "fscanf", "sscanf",
             "sprint", "sbprintf",
 
             // Memory management
