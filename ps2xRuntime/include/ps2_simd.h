@@ -111,7 +111,7 @@ namespace simd
         return result;
 #endif
     }
-    
+
     inline simd128i_t set_epi64x(int64_t hi, int64_t lo)
     {
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)

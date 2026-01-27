@@ -15,7 +15,7 @@
 #include <atomic>
 #include <filesystem>
 // POSIX functions
-#include <unistd.h>  // for chdir, rmdir, unlink
+#include <unistd.h>   // for chdir, rmdir, unlink
 #include <sys/stat.h> // for mkdir
 
 std::unordered_map<int, FILE *> g_fileDescriptors;

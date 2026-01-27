@@ -11,10 +11,12 @@
 #endif
 #endif
 
-inline uint32_t ps2_clz32(uint32_t val) {
+inline uint32_t ps2_clz32(uint32_t val)
+{
 #if defined(_MSC_VER)
     unsigned long idx;
-    if (_BitScanReverse(&idx, val)) {
+    if (_BitScanReverse(&idx, val))
+    {
         return 31u - idx;
     }
     return 32u;
@@ -25,9 +27,25 @@ inline uint32_t ps2_clz32(uint32_t val) {
 
 // Basic MIPS arithmetic operations
 #define ADD32(a, b) ((uint32_t)((a) + (b)))
-#define ADD32_OV(rs, rt, result32, overflow)                     do {                                                                    int32_t _a = (int32_t)(rs);                                         int32_t _b = (int32_t)(rt);                                         int32_t _r = _a + _b;                                               overflow = (((_a ^ _b) >= 0) && ((_a ^ _r) < 0));                   result32 = (uint32_t)_r;                                        } while (0);
+#define ADD32_OV(rs, rt, result32, overflow)              \
+    do                                                    \
+    {                                                     \
+        int32_t _a = (int32_t)(rs);                       \
+        int32_t _b = (int32_t)(rt);                       \
+        int32_t _r = _a + _b;                             \
+        overflow = (((_a ^ _b) >= 0) && ((_a ^ _r) < 0)); \
+        result32 = (uint32_t)_r;                          \
+    } while (0);
 #define SUB32(a, b) ((uint32_t)((a) - (b)))
-#define SUB32_OV(rs, rt, result32, overflow)                     do {                                                                    int32_t _a = (int32_t)(rs);                                         int32_t _b = (int32_t)(rt);                                         int32_t _r = _a - _b;                                               overflow = (((_a ^ _b) < 0) && ((_a ^ _r) < 0));                    result32 = (uint32_t)_r;                                        } while (0);
+#define SUB32_OV(rs, rt, result32, overflow)             \
+    do                                                   \
+    {                                                    \
+        int32_t _a = (int32_t)(rs);                      \
+        int32_t _b = (int32_t)(rt);                      \
+        int32_t _r = _a - _b;                            \
+        overflow = (((_a ^ _b) < 0) && ((_a ^ _r) < 0)); \
+        result32 = (uint32_t)_r;                         \
+    } while (0);
 #define MUL32(a, b) ((uint32_t)((a) * (b)))
 #define DIV32(a, b) ((uint32_t)((a) / (b)))
 #define AND32(a, b) ((uint32_t)((a) & (b)))
@@ -67,25 +85,25 @@ inline uint32_t ps2_clz32(uint32_t val) {
 // Fallback implementations for non-x86 platforms
 // These are simplified versions that may not match exact PS2 behavior
 #define PS2_PEXTLW(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PEXTUW(a, b) simd::setzero_128i() // TODO: Implement  
+#define PS2_PEXTUW(a, b) simd::setzero_128i() // TODO: Implement
 #define PS2_PEXTLH(a, b) simd::setzero_128i() // TODO: Implement
 #define PS2_PEXTUH(a, b) simd::setzero_128i() // TODO: Implement
 #define PS2_PEXTLB(a, b) simd::setzero_128i() // TODO: Implement
 #define PS2_PEXTUB(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PADDW(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PSUBW(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PMAXW(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PMINW(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PADDH(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PSUBH(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PMAXH(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PMINH(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PADDB(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PSUBB(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PAND(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_POR(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PXOR(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PNOR(a, b) simd::setzero_128i() // TODO: Implement
+#define PS2_PADDW(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PSUBW(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PMAXW(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PMINW(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PADDH(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PSUBH(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PMAXH(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PMINH(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PADDB(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PSUBB(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PAND(a, b) simd::setzero_128i()   // TODO: Implement
+#define PS2_POR(a, b) simd::setzero_128i()    // TODO: Implement
+#define PS2_PXOR(a, b) simd::setzero_128i()   // TODO: Implement
+#define PS2_PNOR(a, b) simd::setzero_128i()   // TODO: Implement
 #endif
 
 // PS2 VU (Vector Unit) operations
@@ -97,24 +115,24 @@ inline uint32_t ps2_clz32(uint32_t val) {
 #define PS2_VMULQ(a, q) _mm_mul_ps((__m128)(a), _mm_set1_ps(q))
 #else
 // Fallback VU operations for non-x86 platforms
-#define PS2_VADD(a, b) simd::setzero_ps() // TODO: Implement
-#define PS2_VSUB(a, b) simd::setzero_ps() // TODO: Implement
-#define PS2_VMUL(a, b) simd::setzero_ps() // TODO: Implement
-#define PS2_VDIV(a, b) simd::setzero_ps() // TODO: Implement
+#define PS2_VADD(a, b) simd::setzero_ps()  // TODO: Implement
+#define PS2_VSUB(a, b) simd::setzero_ps()  // TODO: Implement
+#define PS2_VMUL(a, b) simd::setzero_ps()  // TODO: Implement
+#define PS2_VDIV(a, b) simd::setzero_ps()  // TODO: Implement
 #define PS2_VMULQ(a, q) simd::setzero_ps() // TODO: Implement
 #endif
 
 // Memory access helpers
-#define READ8(addr) (*(uint8_t*)((rdram) + ((addr) & PS2_RAM_MASK)))
-#define READ16(addr) (*(uint16_t*)((rdram) + ((addr) & PS2_RAM_MASK)))
-#define READ32(addr) (*(uint32_t*)((rdram) + ((addr) & PS2_RAM_MASK)))
-#define READ64(addr) (*(uint64_t*)((rdram) + ((addr) & PS2_RAM_MASK)))
-#define READ128(addr) (*((simd128i_t*)((rdram) + ((addr) & PS2_RAM_MASK))))
-#define WRITE8(addr, val) (*(uint8_t*)((rdram) + ((addr) & PS2_RAM_MASK)) = (val))
-#define WRITE16(addr, val) (*(uint16_t*)((rdram) + ((addr) & PS2_RAM_MASK)) = (val))
-#define WRITE32(addr, val) (*(uint32_t*)((rdram) + ((addr) & PS2_RAM_MASK)) = (val))
-#define WRITE64(addr, val) (*(uint64_t*)((rdram) + ((addr) & PS2_RAM_MASK)) = (val))
-#define WRITE128(addr, val) (*((simd128i_t*)((rdram) + ((addr) & PS2_RAM_MASK))) = (val))
+#define READ8(addr) (*(uint8_t *)((rdram) + ((addr) & PS2_RAM_MASK)))
+#define READ16(addr) (*(uint16_t *)((rdram) + ((addr) & PS2_RAM_MASK)))
+#define READ32(addr) (*(uint32_t *)((rdram) + ((addr) & PS2_RAM_MASK)))
+#define READ64(addr) (*(uint64_t *)((rdram) + ((addr) & PS2_RAM_MASK)))
+#define READ128(addr) (*((simd128i_t *)((rdram) + ((addr) & PS2_RAM_MASK))))
+#define WRITE8(addr, val) (*(uint8_t *)((rdram) + ((addr) & PS2_RAM_MASK)) = (val))
+#define WRITE16(addr, val) (*(uint16_t *)((rdram) + ((addr) & PS2_RAM_MASK)) = (val))
+#define WRITE32(addr, val) (*(uint32_t *)((rdram) + ((addr) & PS2_RAM_MASK)) = (val))
+#define WRITE64(addr, val) (*(uint64_t *)((rdram) + ((addr) & PS2_RAM_MASK)) = (val))
+#define WRITE128(addr, val) (*((simd128i_t *)((rdram) + ((addr) & PS2_RAM_MASK))) = (val))
 
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
 #define PS2_PCGTW(a, b) _mm_cmpgt_epi32((__m128i)(a), (__m128i)(b))
@@ -129,27 +147,27 @@ inline uint32_t ps2_clz32(uint32_t val) {
 #define PS2_PPACW(a, b) _mm_packs_epi32((__m128i)(b), (__m128i)(a))
 #define PS2_PPACH(a, b) _mm_packs_epi16((__m128i)(b), (__m128i)(a))
 #define PS2_PPACB(a, b) _mm_packus_epi16(_mm_packs_epi32((__m128i)(b), (__m128i)(a)), _mm_setzero_si128())
-#define PS2_PINTH(a, b) _mm_unpacklo_epi16(_mm_shuffle_epi32((__m128i)(b), _MM_SHUFFLE(3,2,1,0)), _mm_shuffle_epi32((__m128i)(a), _MM_SHUFFLE(3,2,1,0)))
-#define PS2_PINTEH(a, b) _mm_unpackhi_epi16(_mm_shuffle_epi32((__m128i)(b), _MM_SHUFFLE(3,2,1,0)), _mm_shuffle_epi32((__m128i)(a), _MM_SHUFFLE(3,2,1,0)))
-#define PS2_PMADDW(a, b) _mm_add_epi32(_mm_mullo_epi32(_mm_shuffle_epi32((__m128i)(a), _MM_SHUFFLE(1,0,3,2)), _mm_shuffle_epi32((__m128i)(b), _MM_SHUFFLE(1,0,3,2))), _mm_mullo_epi32(_mm_shuffle_epi32((__m128i)(a), _MM_SHUFFLE(3,2,1,0)), _mm_shuffle_epi32((__m128i)(b), _MM_SHUFFLE(3,2,1,0))))
+#define PS2_PINTH(a, b) _mm_unpacklo_epi16(_mm_shuffle_epi32((__m128i)(b), _MM_SHUFFLE(3, 2, 1, 0)), _mm_shuffle_epi32((__m128i)(a), _MM_SHUFFLE(3, 2, 1, 0)))
+#define PS2_PINTEH(a, b) _mm_unpackhi_epi16(_mm_shuffle_epi32((__m128i)(b), _MM_SHUFFLE(3, 2, 1, 0)), _mm_shuffle_epi32((__m128i)(a), _MM_SHUFFLE(3, 2, 1, 0)))
+#define PS2_PMADDW(a, b) _mm_add_epi32(_mm_mullo_epi32(_mm_shuffle_epi32((__m128i)(a), _MM_SHUFFLE(1, 0, 3, 2)), _mm_shuffle_epi32((__m128i)(b), _MM_SHUFFLE(1, 0, 3, 2))), _mm_mullo_epi32(_mm_shuffle_epi32((__m128i)(a), _MM_SHUFFLE(3, 2, 1, 0)), _mm_shuffle_epi32((__m128i)(b), _MM_SHUFFLE(3, 2, 1, 0))))
 #define PS2_PSLLVW(a, b) _mm_custom_sllv_epi32((__m128i)(a), (__m128i)(b))
 #define PS2_PSRLVW(a, b) _mm_custom_srlv_epi32((__m128i)(a), (__m128i)(b))
 #define PS2_PSRAVW(a, b) _mm_custom_srav_epi32((__m128i)(a), (__m128i)(b))
 #else
-// Fallback comparison operations for non-x86 platforms  
-#define PS2_PCGTW(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PCGTH(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PCGTB(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PCEQW(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PCEQH(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PCEQB(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PABSW(a) simd::setzero_128i() // TODO: Implement
-#define PS2_PABSH(a) simd::setzero_128i() // TODO: Implement
-#define PS2_PABSB(a) simd::setzero_128i() // TODO: Implement
-#define PS2_PPACW(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PPACH(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PPACB(a, b) simd::setzero_128i() // TODO: Implement
-#define PS2_PINTH(a, b) simd::setzero_128i() // TODO: Implement
+// Fallback comparison operations for non-x86 platforms
+#define PS2_PCGTW(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PCGTH(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PCGTB(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PCEQW(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PCEQH(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PCEQB(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PABSW(a) simd::setzero_128i()     // TODO: Implement
+#define PS2_PABSH(a) simd::setzero_128i()     // TODO: Implement
+#define PS2_PABSB(a) simd::setzero_128i()     // TODO: Implement
+#define PS2_PPACW(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PPACH(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PPACB(a, b) simd::setzero_128i()  // TODO: Implement
+#define PS2_PINTH(a, b) simd::setzero_128i()  // TODO: Implement
 #define PS2_PINTEH(a, b) simd::setzero_128i() // TODO: Implement
 #define PS2_PMADDW(a, b) simd::setzero_128i() // TODO: Implement
 #define PS2_PSLLVW(a, b) simd::setzero_128i() // TODO: Implement
@@ -158,60 +176,69 @@ inline uint32_t ps2_clz32(uint32_t val) {
 #endif
 
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
-inline __m128i _mm_custom_sllv_epi32(__m128i a, __m128i count) {
+inline __m128i _mm_custom_sllv_epi32(__m128i a, __m128i count)
+{
     int32_t a_arr[4], count_arr[4], result[4];
-    _mm_storeu_si128((__m128i*)a_arr, a);
-    _mm_storeu_si128((__m128i*)count_arr, count);
-    for (int i = 0; i < 4; i++) {
+    _mm_storeu_si128((__m128i *)a_arr, a);
+    _mm_storeu_si128((__m128i *)count_arr, count);
+    for (int i = 0; i < 4; i++)
+    {
         result[i] = a_arr[i] << (count_arr[i] & 0x1F);
     }
-    return _mm_loadu_si128((__m128i*)result);
+    return _mm_loadu_si128((__m128i *)result);
 }
 
-inline __m128i _mm_custom_srlv_epi32(__m128i a, __m128i count) {
+inline __m128i _mm_custom_srlv_epi32(__m128i a, __m128i count)
+{
     int32_t a_arr[4], count_arr[4], result[4];
-    _mm_storeu_si128((__m128i*)a_arr, a);
-    _mm_storeu_si128((__m128i*)count_arr, count);
-    for (int i = 0; i < 4; i++) {
+    _mm_storeu_si128((__m128i *)a_arr, a);
+    _mm_storeu_si128((__m128i *)count_arr, count);
+    for (int i = 0; i < 4; i++)
+    {
         result[i] = (uint32_t)a_arr[i] >> (count_arr[i] & 0x1F);
     }
-    return _mm_loadu_si128((__m128i*)result);
+    return _mm_loadu_si128((__m128i *)result);
 }
 
-inline __m128i _mm_custom_srav_epi32(__m128i a, __m128i count) {
+inline __m128i _mm_custom_srav_epi32(__m128i a, __m128i count)
+{
     int32_t a_arr[4], count_arr[4], result[4];
-    _mm_storeu_si128((__m128i*)a_arr, a);
-    _mm_storeu_si128((__m128i*)count_arr, count);
-    for (int i = 0; i < 4; i++) {
+    _mm_storeu_si128((__m128i *)a_arr, a);
+    _mm_storeu_si128((__m128i *)count_arr, count);
+    for (int i = 0; i < 4; i++)
+    {
         result[i] = a_arr[i] >> (count_arr[i] & 0x1F);
     }
-    return _mm_loadu_si128((__m128i*)result);
+    return _mm_loadu_si128((__m128i *)result);
 }
 
 #define PS2_PMFHL_LW(hi, lo) _mm_unpacklo_epi64(lo, hi)
 #define PS2_PMFHL_UW(hi, lo) _mm_unpackhi_epi64(lo, hi)
 #define PS2_PMFHL_SLW(hi, lo) _mm_packs_epi32(lo, hi)
-#define PS2_PMFHL_LH(hi, lo) _mm_shuffle_epi32(_mm_packs_epi32(lo, hi), _MM_SHUFFLE(3,1,2,0))
-#define PS2_PMFHL_SH(hi, lo) _mm_shufflehi_epi16(_mm_shufflelo_epi16(_mm_packs_epi32(lo, hi), _MM_SHUFFLE(3,1,2,0)), _MM_SHUFFLE(3,1,2,0))
+#define PS2_PMFHL_LH(hi, lo) _mm_shuffle_epi32(_mm_packs_epi32(lo, hi), _MM_SHUFFLE(3, 1, 2, 0))
+#define PS2_PMFHL_SH(hi, lo) _mm_shufflehi_epi16(_mm_shufflelo_epi16(_mm_packs_epi32(lo, hi), _MM_SHUFFLE(3, 1, 2, 0)), _MM_SHUFFLE(3, 1, 2, 0))
 #else
 // Fallback custom functions for non-x86 platforms
-inline simd128i_t _mm_custom_sllv_epi32_fallback(simd128i_t a, simd128i_t count) {
+inline simd128i_t _mm_custom_sllv_epi32_fallback(simd128i_t a, simd128i_t count)
+{
     // TODO: Implement proper fallback
     return simd::setzero_128i();
 }
-inline simd128i_t _mm_custom_srlv_epi32_fallback(simd128i_t a, simd128i_t count) {
-    // TODO: Implement proper fallback  
-    return simd::setzero_128i();
-}
-inline simd128i_t _mm_custom_srav_epi32_fallback(simd128i_t a, simd128i_t count) {
+inline simd128i_t _mm_custom_srlv_epi32_fallback(simd128i_t a, simd128i_t count)
+{
     // TODO: Implement proper fallback
     return simd::setzero_128i();
 }
-#define PS2_PMFHL_LW(hi, lo) simd::setzero_128i() // TODO: Implement
-#define PS2_PMFHL_UW(hi, lo) simd::setzero_128i() // TODO: Implement
+inline simd128i_t _mm_custom_srav_epi32_fallback(simd128i_t a, simd128i_t count)
+{
+    // TODO: Implement proper fallback
+    return simd::setzero_128i();
+}
+#define PS2_PMFHL_LW(hi, lo) simd::setzero_128i()  // TODO: Implement
+#define PS2_PMFHL_UW(hi, lo) simd::setzero_128i()  // TODO: Implement
 #define PS2_PMFHL_SLW(hi, lo) simd::setzero_128i() // TODO: Implement
-#define PS2_PMFHL_LH(hi, lo) simd::setzero_128i() // TODO: Implement
-#define PS2_PMFHL_SH(hi, lo) simd::setzero_128i() // TODO: Implement
+#define PS2_PMFHL_LH(hi, lo) simd::setzero_128i()  // TODO: Implement
+#define PS2_PMFHL_SH(hi, lo) simd::setzero_128i()  // TODO: Implement
 #endif
 // FPU (COP1) operations
 #define FPU_ADD_S(a, b) ((float)(a) + (float)(b))
@@ -260,10 +287,10 @@ inline simd128i_t _mm_custom_srav_epi32_fallback(simd128i_t a, simd128i_t count)
 #else
 // Fallback shuffle operations for non-x86 platforms
 #define PS2_QFSRV(rs, rt, sa) simd::setzero_128i() // TODO: Implement
-#define PS2_PCPYLD(rs, rt) simd::setzero_128i() // TODO: Implement
-#define PS2_PEXEH(rs) simd::setzero_128i() // TODO: Implement
-#define PS2_PEXEW(rs) simd::setzero_128i() // TODO: Implement
-#define PS2_PROT3W(rs) simd::setzero_128i() // TODO: Implement
+#define PS2_PCPYLD(rs, rt) simd::setzero_128i()    // TODO: Implement
+#define PS2_PEXEH(rs) simd::setzero_128i()         // TODO: Implement
+#define PS2_PEXEW(rs) simd::setzero_128i()         // TODO: Implement
+#define PS2_PROT3W(rs) simd::setzero_128i()        // TODO: Implement
 #endif
 // Additional VU0 operations
 #define PS2_VSQRT(x) sqrtf(x)
@@ -275,34 +302,34 @@ inline simd128i_t _mm_custom_srav_epi32_fallback(simd128i_t a, simd128i_t count)
 #define GPR_U64(ctx_ptr, reg_idx) ((reg_idx == 0) ? 0ULL : ctx_ptr->r[reg_idx].m128i_u64[0])
 #define GPR_S64(ctx_ptr, reg_idx) ((reg_idx == 0) ? 0LL : ctx_ptr->r[reg_idx].m128i_i64[0])
 #define GPR_VEC(ctx_ptr, reg_idx) ((reg_idx == 0) ? simd::setzero_128i() : ctx_ptr->r[reg_idx])
-#define SET_GPR_U32(ctx_ptr, reg_idx, val) \
-    do                                     \
-    {                                      \
-        if (reg_idx != 0)                  \
+#define SET_GPR_U32(ctx_ptr, reg_idx, val)                         \
+    do                                                             \
+    {                                                              \
+        if (reg_idx != 0)                                          \
             ctx_ptr->r[reg_idx] = simd::set_epi32(0, 0, 0, (val)); \
     } while (0)
-#define SET_GPR_S32(ctx_ptr, reg_idx, val) \
-    do                                     \
-    {                                      \
-        if (reg_idx != 0)                  \
+#define SET_GPR_S32(ctx_ptr, reg_idx, val)                         \
+    do                                                             \
+    {                                                              \
+        if (reg_idx != 0)                                          \
             ctx_ptr->r[reg_idx] = simd::set_epi32(0, 0, 0, (val)); \
     } while (0)
-#define SET_GPR_U64(ctx_ptr, reg_idx, val) \
-    do                                     \
-    {                                      \
-        if (reg_idx != 0)                  \
+#define SET_GPR_U64(ctx_ptr, reg_idx, val)                    \
+    do                                                        \
+    {                                                         \
+        if (reg_idx != 0)                                     \
             ctx_ptr->r[reg_idx] = simd::set_epi64x(0, (val)); \
     } while (0)
-#define SET_GPR_S64(ctx_ptr, reg_idx, val) \
-    do                                     \
-    {                                      \
-        if (reg_idx != 0)                  \
+#define SET_GPR_S64(ctx_ptr, reg_idx, val)                    \
+    do                                                        \
+    {                                                         \
+        if (reg_idx != 0)                                     \
             ctx_ptr->r[reg_idx] = simd::set_epi64x(0, (val)); \
     } while (0)
 #define SET_GPR_VEC(ctx_ptr, reg_idx, val) \
     do                                     \
     {                                      \
         if (reg_idx != 0)                  \
-            ctx_ptr->r[reg_idx] = (val); \
+            ctx_ptr->r[reg_idx] = (val);   \
     } while (0)
 #endif // PS2_RUNTIME_MACROS_H
