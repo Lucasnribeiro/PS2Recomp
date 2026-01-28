@@ -44,7 +44,6 @@ namespace ps2recomp
 
     std::string CodeGenerator::getFunctionName(uint32_t address)
     {
-        // Prefer renamed function name if present
         auto it = m_renamedFunctions.find(address);
         if (it != m_renamedFunctions.end())
         {
@@ -54,8 +53,7 @@ namespace ps2recomp
         Symbol *sym = findSymbolByAddress(address);
         if (sym && sym->isFunction)
         {
-            // Always sanitize symbol names for C++
-            return sanitizeFunctionName(sym->name);
+            return sym->name;
         }
 
         return "";
@@ -75,18 +73,23 @@ namespace ps2recomp
         return kKeywords.find(name) != kKeywords.end();
     }
 
-    std::string CodeGenerator::sanitizeFunctionName(const std::string &name)
+    static std::string sanitizeFunctionName(const std::string& name)
     {
+        std::string sanitized = name;
+
+        std::replace(sanitized.begin(), sanitized.end(), '.', '_');
+
         // ugly but will do for now
-        if (name == "main")
+        if (sanitized == "main")
             return "ps2_main";
 
-        if (isReservedCxxKeyword(name))
-            return "ps2_" + name;
+        if (isReservedCxxKeyword(sanitized))
+            return "ps2_" + sanitized;
 
-        if (!isReservedCxxIdentifier(name))
-            return name;
-        return "ps2_" + name;
+        if (!isReservedCxxIdentifier(sanitized))
+            return sanitized;
+
+        return "ps2_" + sanitized;
     }
 
     std::string CodeGenerator::getGeneratedFunctionName(const Function &function)
@@ -121,28 +124,14 @@ namespace ps2recomp
                 ss << "    " << delaySlotCode << "\n";
             }
             uint32_t target = (branchInst.address & 0xF0000000) | (branchInst.target << 2);
-            // Use getGeneratedFunctionName to ensure renaming/sanitization
-            // Always use sanitized/renamed name for direct calls
-            std::string funcName;
-            Symbol *sym = findSymbolByAddress(target);
-            if (sym && sym->isFunction)
+            std::string funcName = getFunctionName(target);
+            if (!funcName.empty())
             {
-                if (m_renamedFunctions.count(target))
+                ss << "    " << funcName << "(rdram, ctx, runtime);\n";
+                if (branchInst.opcode == OPCODE_J)
                 {
-                    funcName = m_renamedFunctions.at(target);
+                    ss << "    return;\n";
                 }
-                else if (isReservedCxxIdentifier(sym->name) || isReservedCxxKeyword(sym->name))
-                {
-                    funcName = CodeGenerator::sanitizeFunctionName(sym->name);
-                }
-                else
-                {
-                    funcName = sym->name;
-                }
-            }
-            if (!funcName.empty() && sym && sym->isFunction)
-            {
-                ss << "    " << funcName << "(rdram, ctx, runtime); return;\n";
             }
             else
             {
